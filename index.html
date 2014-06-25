@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Symfony2 Translations Bundle by ConnectSB</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Symfony2 Translations Bundle</h1>
+        <h2>Translations bundle for Symfony2 which will let you customize translations based on a specific entity</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/ConnectSB/symfony2-translations-bundle/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/ConnectSB/symfony2-translations-bundle/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/ConnectSB/symfony2-translations-bundle" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="symfony-translation-bundle" class="anchor" href="#symfony-translation-bundle"><span class="octicon octicon-link"></span></a>Symfony Translation Bundle</h1>
+
+<p>With this Bundle you can edit defined translations in Symfony2. The edited translations are stored in two entities in your database. </p>
+
+<h2>
+<a name="1-installation" class="anchor" href="#1-installation"><span class="octicon octicon-link"></span></a>1) Installation</h2>
+
+<p>First you have to add the folowing lines to your <code>composer.json</code> file:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="p">{</span>
+    <span class="s2">"require"</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">"timhovius/translationbundle"</span><span class="o">:</span> <span class="s2">"dev-master"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>You also have to add the TranslationBundle to your AppKernel.php:</p>
+
+<div class="highlight highlight-php"><pre><span class="c1">// app/AppKernel.php</span>
+
+<span class="k">class</span> <span class="nc">AppKernel</span> <span class="k">extends</span> <span class="nx">Kernel</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">registerBundles</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$bundles</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+            <span class="o">...</span>
+            <span class="k">new</span> <span class="nx">TimHovius\TranslationBundle\TimHoviusTranslationBundle</span><span class="p">()</span>
+        <span class="p">);</span>
+
+        <span class="k">return</span> <span class="nv">$bundles</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>The bundle needs the following bundles to be installed for editing translations:</p>
+
+<ul>
+<li>Braincrafted Bootstrap Bundle (<code>braincrafted/bootstrap-bundle</code>)</li>
+<li>Bootstrap (<code>twbs/bootstrap</code>)</li>
+</ul><h2>
+<a name="2-usage" class="anchor" href="#2-usage"><span class="octicon octicon-link"></span></a>2) Usage</h2>
+
+<p>In <code>config.yml</code> you have to set the following parameters:</p>
+
+<pre><code>connect_sb_translation:
+    database_translations_domain:   # name of the translation file (can't be messages)
+    database_translations_entity:   # name of the entity for the translations
+</code></pre>
+
+<p>The entity which holds the translations, must extend <code>BaseTranslationKey</code></p>
+
+<div class="highlight highlight-php"><pre><span class="k">class</span> <span class="nc">ExampleEntity</span> <span class="k">extends</span> <span class="nx">BaseTranslationKey</span>
+<span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
