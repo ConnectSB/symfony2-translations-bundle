@@ -6,7 +6,7 @@
  * Time: 4:05 PM
  */
 
-namespace ConnectSB\TranslationBundle\Form;
+namespace ConnectSB\TranslationBundle\Form\Type;
 
 use ConnectSB\TranslationBundle\Service\DatabaseTranslationService;
 use Symfony\Component\Form\AbstractType;
