@@ -1,0 +1,15 @@
+{
+    "name": "connectsb/translationbundle",
+    "license": "MIT",
+    "type": "symfony-bundle",
+    "description": "Bundle which manages translations coupled to an specific entity",
+    "autoload": {
+        "psr-0": {
+            "ConnectSB\\TranslationBundle": ""
+        }
+    },
+    "require": {
+        "symfony/symfony": ">=2.3"
+    },
+    "target-dir": "ConnectSB/TranslationBundle"
+}

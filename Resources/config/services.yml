@@ -1,0 +1,23 @@
+services:
+    connect_sb_database_translation_service:
+        class: ConnectSB\TranslationBundle\Service\DatabaseTranslationService
+        arguments:
+            - @request_stack
+            - @cache
+            - @doctrine.orm.entity_manager
+            - %kernel.root_dir%
+            - %database_translations_domain%
+            - %database_translations_entity%
+
+    cache:
+        class: Doctrine\Common\Cache\PhpFileCache
+        arguments: [%kernel.cache_dir%]
+
+    connect_sb_database_translations_loader:
+        class: ConnectSB\TranslationBundle\Translation\DatabaseTranslationLoader
+        arguments:
+            - @doctrine.orm.entity_manager
+            - @request_stack
+            - %database_translations_entity%
+        tags:
+            - { name: translation.loader, alias: dbtrans }
