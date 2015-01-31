@@ -63,11 +63,10 @@ class DatabaseTranslationLoader implements LoaderInterface
 
         if ($entityId && $this->databaseTranslationsEntity) {
 
-            /** @var TranslationKey[] $translationKeys */
             $translationKeys = $this->entityManager
                 ->getRepository($this->databaseTranslationsEntity)
                 ->find($entityId)
-                ->getTranslationKeys();
+                ->getTranslationKeysFromDatabase();
 
             $translationReplacements = array();
 

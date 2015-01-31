@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * This entity should be extended by the external party, it holds the keys for the translations
  *
- * @ORM\MappedSuperclass()
+ * @ORM\MappedSuperclass(repositoryClass="ConnectSB\TranslationBundle\Repository\TranslationKeyRepository")
  */
 class BaseTranslationKey
 {

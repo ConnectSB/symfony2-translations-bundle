@@ -56,29 +56,48 @@ class DatabaseTranslationService
     }
 
     /**
-     * @param BaseTranslationKey[] $translationKeysFormData
+     * @param ArrayCollection $translationKeysFormData
      * @return ArrayCollection
      */
-    public function getModifiedTranslations($translationKeysFormData)
+    public function getModifiedTranslations(ArrayCollection $translationKeysFormData)
     {
         $translationsYamlCollection = $this->getYamlTransationsCollection();
 
         $modifiedTranslationCollection = new ArrayCollection();
 
+        /**
+         * @var BaseTranslationKey $translationKeyFormData
+         * @var BaseTranslationValue $translationValueFormData
+         */
         foreach ($translationKeysFormData as $translationKeyFormData) {
-            $criteria = Criteria::create();
-            $criteria->where(Criteria::expr()->eq('key', $translationKeyFormData->getKey()));
+            $criteria = Criteria::create()
+                ->where(Criteria::expr()->eq(
+                    'key', $translationKeyFormData->getKey()
+                ));
 
             $translationYaml = $translationsYamlCollection->matching($criteria)->first();
 
-            if ($translationYaml->getTranslationValues() != $translationKeyFormData->getTranslationValues()) {
-                $modifiedTranslationCollection->add($translationKeyFormData);
+            $addedToCollection = false;
+
+            foreach ($translationKeyFormData->getTranslationValues() as $translationValueFormData) {
+                $criteria = Criteria::create()
+                    ->where(Criteria::expr()->eq(
+                        'value', $translationValueFormData->getValue()
+                    ));
+
+                if (!$translationYaml->getTranslationValues()->matching($criteria)->first() && !$addedToCollection) {
+                    $modifiedTranslationCollection->add($translationKeyFormData);
+                    $addedToCollection = true;
+                }
             }
         }
 
         return $modifiedTranslationCollection;
     }
 
+    /**
+     * @return ArrayCollection
+     */
     private function getYamlTransationsCollection()
     {
         $translationKeyEntityString = $this->getTranslationKeyEntity();
@@ -134,7 +153,8 @@ class DatabaseTranslationService
      * @param $cacheId
      * @return null|string
      */
-    private function getEntityByParentClass($className, $cacheId)
+    private
+    function getEntityByParentClass($className, $cacheId)
     {
         if ($entity = $this->phpFileCache->fetch($cacheId)) {
             return $entity;
@@ -257,24 +277,23 @@ class DatabaseTranslationService
      */
     public function getTranslationsCollection()
     {
-        $translationsCollection = $this->getYamlTransationsCollection();
+        $translationsYamlCollection = $this->getYamlTransationsCollection();
 
         /** @var ArrayCollection $translationKeysDatabase */
         $translationKeysDatabase = $this->entityManager
-            ->getRepository($this->databaseTranslationsEntityString)
-            ->find($this->requestStack->getMasterRequest()->get('entityId'))
-            ->getTranslationKeys();
+            ->getRepository($this->getTranslationKeyEntity())
+            ->getTranslationKeysFromDatabase($this->databaseTranslationsEntityString, $this->requestStack->getMasterRequest()->get('entityId'));
 
-        /** @var BaseTranslationKey $translationKey */
-        foreach ($translationsCollection as $key => $translationKey) {
-            $criteria = Criteria::create();
-            $criteria->where(Criteria::expr()->eq('key', $translationKey->getKey()));
-            $translationKeyDatabase = $translationKeysDatabase->matching($criteria)->first();
-
-            if ($translationKeyDatabase) {
-                $translationsCollection->set($key, $translationKeyDatabase);
-            }
+        if (!$translationKeysDatabase) {
+            return $translationsYamlCollection;
         }
+
+        $mergedCollection = array_replace_recursive(
+            $translationsYamlCollection->toArray(),
+            $translationKeysDatabase->toArray()
+        );
+
+        $translationsCollection = new ArrayCollection($mergedCollection);
 
         return $translationsCollection;
     }
