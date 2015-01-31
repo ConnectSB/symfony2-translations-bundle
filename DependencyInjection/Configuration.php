@@ -20,7 +20,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('connect_sb_translation');
 
-        $notSupportedDomains = array('messages');
+        $notSupportedDomains = array('test');
 
         $rootNode
             ->children()

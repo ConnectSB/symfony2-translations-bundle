@@ -8,7 +8,6 @@
 
 namespace ConnectSB\TranslationBundle\Translation;
 
-use ConnectSB\InstantWinBundle\Entity\TranslationKey;
 use ConnectSB\TranslationBundle\Entity\BaseTranslationKey;
 use ConnectSB\TranslationBundle\Entity\BaseTranslationValue;
 use Doctrine\ORM\EntityManager;
@@ -25,20 +24,20 @@ use Symfony\Component\Translation\MessageCatalogue;
  */
 class DatabaseTranslationLoader implements LoaderInterface
 {
-    private $entityManager;
     private $requestStack;
-    private $databaseTranslationsEntity;
+    private $entityManager;
+    private $databaseTranslationsEntityString;
 
     /**
-     * @param EntityManager $entityManager
      * @param RequestStack $requestStack
-     * @param $databaseTranslationsEntity
+     * @param EntityManager $entityManager
+     * @param $databaseTranslationsEntityString
      */
-    public function __construct(EntityManager $entityManager, RequestStack $requestStack, $databaseTranslationsEntity)
+    public function __construct(RequestStack $requestStack, EntityManager $entityManager, $databaseTranslationsEntityString)
     {
-        $this->entityManager = $entityManager;
         $this->requestStack = $requestStack;
-        $this->databaseTranslationsEntity = $databaseTranslationsEntity;
+        $this->entityManager = $entityManager;
+        $this->databaseTranslationsEntityString = $databaseTranslationsEntityString;
     }
 
     /**
@@ -61,29 +60,61 @@ class DatabaseTranslationLoader implements LoaderInterface
 
         $catalogue = new MessageCatalogue($locale);
 
-        if ($entityId && $this->databaseTranslationsEntity) {
+        if ($entityId && $this->databaseTranslationsEntityString) {
 
-            $translationKeys = $this->entityManager
-                ->getRepository($this->databaseTranslationsEntity)
-                ->find($entityId)
-                ->getTranslationKeysFromDatabase();
+            $translationsFromDatabase = $this->entityManager
+                ->getRepository($this->getTranslationKeyEntity())
+                ->getTranslationKeysFromDatabase($this->databaseTranslationsEntityString, $this->requestStack->getMasterRequest()->get('entityId'));
 
             $translationReplacements = array();
 
-            /** @var BaseTranslationKey $translationKey */
+            /** @var BaseTranslationKey $translationFromDatabase */
             /** @var BaseTranslationValue $translationValue */
-            foreach ($translationKeys as $translationKey) {
-                $translationValue = $translationKey->getTranslationValueByLocale($locale);
+            foreach ($translationsFromDatabase as $translationFromDatabase) {
+                $translationValue = $translationFromDatabase->getTranslationValueByLocale($locale);
                 if (!$translationValue) {
                     continue;
                 }
 
-                $translationReplacements[$translationKey->getKey()] = $translationValue->getValue();
+                $translationReplacements[$translationFromDatabase->getKey()] = $translationValue->getValue();
             }
 
             $catalogue->replace($translationReplacements);
         }
 
         return $catalogue;
+    }
+
+    /**
+     * Get the class that extends the BaseTranslationKey entity
+     *
+     * @return string Name of the entity including the full namespace
+     */
+    public function getTranslationKeyEntity()
+    {
+        return $this->getEntityByParentClass('ConnectSB\\TranslationBundle\\Entity\\BaseTranslationKey');
+    }
+
+    /**
+     * Returns the entities that extends the given entity, this entity is based the class name
+     *
+     * @param $className
+     * @return null|string
+     */
+    private function getEntityByParentClass($className)
+    {
+        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metaDataClass */
+        foreach ($this->entityManager->getMetadataFactory()->getAllMetadata() as $metaDataClass) {
+            if (!$metaDataClass->getReflectionClass()->getParentClass()) {
+                continue;
+            }
+
+            if ($metaDataClass->getReflectionClass()->getParentClass()->getName() == $className) {
+                $entity = $metaDataClass->getName();
+                return $entity;
+            }
+        }
+
+        return null;
     }
 }
