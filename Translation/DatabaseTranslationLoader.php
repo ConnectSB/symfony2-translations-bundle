@@ -79,7 +79,7 @@ class DatabaseTranslationLoader implements LoaderInterface
                 $translationReplacements[$translationFromDatabase->getKey()] = $translationValue->getValue();
             }
 
-            $catalogue->replace($translationReplacements);
+            $catalogue->replace($translationReplacements, $domain);
         }
 
         return $catalogue;
