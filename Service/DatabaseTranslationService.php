@@ -70,22 +70,24 @@ class DatabaseTranslationService
          * @var BaseTranslationValue $translationValueFormData
          */
         foreach ($translationKeysFormData as $translationKeyFormData) {
-            $criteria = Criteria::create()
+            $translationKeyCriteria = Criteria::create()
                 ->where(Criteria::expr()->eq(
                     'key', $translationKeyFormData->getKey()
                 ));
 
-            $translationYaml = $translationsYamlCollection->matching($criteria)->first();
+            $translationYaml = $translationsYamlCollection->matching($translationKeyCriteria)->first();
 
             $addedToCollection = false;
 
             foreach ($translationKeyFormData->getTranslationValues() as $translationValueFormData) {
-                $criteria = Criteria::create()
+                $translationValueCriteria = Criteria::create()
                     ->where(Criteria::expr()->eq(
                         'value', $translationValueFormData->getValue()
                     ));
 
-                if (!$translationYaml->getTranslationValues()->matching($criteria)->first() && !$addedToCollection) {
+                $matchedTranslationKey = $translationYaml->getTranslationValues()->matching($translationValueCriteria)->first();
+
+                if (!$matchedTranslationKey && !$addedToCollection) {
                     $modifiedTranslationsCollection->add($translationKeyFormData);
                     $addedToCollection = true;
                 }
