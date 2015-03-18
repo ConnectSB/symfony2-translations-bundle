@@ -155,8 +155,7 @@ class DatabaseTranslationService
      * @param $cacheId
      * @return null|string
      */
-    private
-    function getEntityByParentClass($className, $cacheId)
+    private function getEntityByParentClass($className, $cacheId)
     {
         if ($entity = $this->phpFileCache->fetch($cacheId)) {
             return $entity;
@@ -253,7 +252,7 @@ class DatabaseTranslationService
     private function buildTranslationsArrayRecursively($array, $keysString = '', $locale)
     {
         if (!is_array($array)) {
-            $this->translations[$keysString][$locale] = $array;
+            $this->translations[$keysString][$locale] = str_replace(PHP_EOL, '', $array);;
             return;
         }
 
